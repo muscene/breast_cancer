@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Registration</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+
+    <div class="flex">
+
+        <!-- Sidebar -->
+        <div class="w-64 bg-blue-500 text-white p-6">
+            <h2 class="text-2xl font-semibold mb-6">Medical System</h2>
+            <ul>
+                <li><a href="#" class="flex items-center py-2 px-4 hover:bg-blue-700 rounded">
+                    <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
+                </a></li>
+                <li><a href="#patientRegistration" class="flex items-center py-2 px-4 hover:bg-blue-700 rounded">
+                    <i class="fas fa-user-plus mr-3"></i> Patient Registration
+                </a></li>
+                <li><a href="#fileUpload" class="flex items-center py-2 px-4 hover:bg-blue-700 rounded">
+                    <i class="fas fa-upload mr-3"></i> File Upload
+                </a></li>
+                <li><a href="#patientList" class="flex items-center py-2 px-4 hover:bg-blue-700 rounded">
+                    <i class="fas fa-users mr-3"></i> Patient List
+                </a></li>
+                <li><a href="#reports" class="flex items-center py-2 px-4 hover:bg-blue-700 rounded">
+                    <i class="fas fa-file-alt mr-3"></i> Reports
+                </a></li>
+                <li><a href="#settings" class="flex items-center py-2 px-4 hover:bg-blue-700 rounded">
+                    <i class="fas fa-cogs mr-3"></i> Settings
+                </a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-6">
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold mb-4">File Upload</h1>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <form id="uploadForm">
+                <input type="file" id="fileInput" name="file" class="mb-2">
+                <button type="button" id="uploadButton" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Upload</button>
+            </form>
+            <div id="fileList"></div>
+        </div>
+    </div>
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('fileInput');
+        const uploadButton = document.getElementById('uploadButton');
+        const fileList = document.getElementById('fileList');
+        const patientId = {{ patient_id }}; // Get patient ID from Flask
+
+        uploadButton.addEventListener('click', async () => {
+            const file = fileInput.files[0];
+            if (!file) {
+                alert("Please select a file.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch(`/api/upload/${patientId}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || "File upload failed.");
+                }
+
+                const data = await response.json();
+                console.log(data);
+                alert("File uploaded successfully!");
+                fileInput.value = ''; // Clear the file input
+                getFiles(patientId); // Refresh file list
+            } catch (error) {
+                console.error("File upload error:", error);
+                alert(error.message);
+            }
+        });
+
+        async function getFiles(patientId) {
+            try {
+                const response = await fetch(`/api/files/${patientId}`);
+                if (!response.ok) {
+                    throw new Error("Failed to fetch files.");
+                }
+                const data = await response.json();
+                fileList.innerHTML = ''; // Clear previous file list
+
+                data.files.forEach(file => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${file.original_filename} (${file.file_type}) - Uploaded: ${file.upload_date}`;
+                    fileList.appendChild(listItem);
+                });
+            } catch (error) {
+                console.error("Error fetching files:", error);
+                alert("Error fetching files.");
+            }
+        }
+
+        // Initial file load (when page loads)
+        getFiles(patientId);
+    </script>
+</body>
+</html>

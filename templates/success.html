@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Registration Successful{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto p-6 bg-gray-100 rounded-lg shadow-lg mt-8">
+    <h2 class="text-2xl font-bold text-center text-blue-900 mb-4">Patient Registered Successfully</h2>
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full border-collapse border border-gray-300 shadow-md bg-white">
+            <thead class="bg-blue-800 text-white">
+                <tr>
+                    <th class="p-3 border">NAME</th>
+                    <th class="p-3 border">PHONE</th>
+                    <th class="p-3 border">EMAIL</th>
+                    <th class="p-3 border">SAMPLE 1</th>
+                    <th class="p-3 border">SAMPLE 2</th>
+                    <th class="p-3 border">SAMPLE 3</th>
+                    <th class="p-3 border">DECISION</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for patient in patients %}
+                <tr class="bg-gray-100 hover:bg-gray-200 transition-all">
+                    <td class="p-3 border">{{ patient.name }}</td>
+                    <td class="p-3 border">{{ patient.phone }}</td>
+                    <td class="p-3 border">{{ patient.email }}</td>
+                    <td class="p-3 border text-center">
+                        {% if patient.image1 %}
+                            <img src="{{ url_for('uploaded_file', filename=patient.image1) }}" width="50" class="rounded-lg shadow hover:scale-125 transition-all">
+                        {% else %}
+                            <span class="text-gray-500">No Image</span>
+                        {% endif %}
+                    </td>
+                    <td class="p-3 border text-center">
+                        {% if patient.image2 %}
+                            <img src="{{ url_for('uploaded_file', filename=patient.image2) }}" width="50" class="rounded-lg shadow hover:scale-125 transition-all">
+                        {% else %}
+                            <span class="text-gray-500">No Image</span>
+                        {% endif %}
+                    </td>
+                    <td class="p-3 border text-center">
+                        {% if patient.image3 %}
+                            <img src="{{ url_for('uploaded_file', filename=patient.image3) }}" width="50" class="rounded-lg shadow hover:scale-125 transition-all">
+                        {% else %}
+                            <span class="text-gray-500">No Image</span>
+                        {% endif %}
+                    </td>
+                    <td class="p-3 border font-semibold text-center {% if patient.decision == 'Approved' %} text-green-600 {% else %} text-red-600 {% endif %}">
+                        {{ patient.decision }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-center mt-6">
+        <a href="{{ url_for('register') }}" class="bg-blue-800 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-900 transition-all">
+            Register Another Patient
+        </a>
+    </div>
+</div>
+{% endblock %}
